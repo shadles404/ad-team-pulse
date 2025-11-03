@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Dashboard } from "@/components/dashboard/Dashboard";
+import { Registration } from "@/components/registration/Registration";
 import { TeamTable } from "@/components/tracker/TeamTable";
 import { Reports } from "@/components/reports/Reports";
 import { Settings } from "@/components/settings/Settings";
@@ -14,8 +15,8 @@ const Index = () => {
       description: "Sarah Johnson",
       phone: "+1234567890",
       salary: 3500,
-      targetVideos: 20,
-      completedVideos: 22,
+      targetVideos: 4,
+      progressChecks: [true, true, true, true],
       advertisementType: "Makeup Ad",
       platform: "Instagram",
       notes: "Excellent engagement rates"
@@ -25,8 +26,8 @@ const Index = () => {
       description: "Mike Chen",
       phone: "+1234567891",
       salary: 3200,
-      targetVideos: 15,
-      completedVideos: 12,
+      targetVideos: 5,
+      progressChecks: [true, true, false, false, false],
       advertisementType: "Skincare Ad",
       platform: "TikTok",
       notes: "Working on new campaign"
@@ -36,15 +37,15 @@ const Index = () => {
       description: "Emma Davis",
       phone: "+1234567892",
       salary: 4000,
-      targetVideos: 25,
-      completedVideos: 28,
+      targetVideos: 6,
+      progressChecks: [false, false, false, false, false, false],
       advertisementType: "Perfume Ad",
       platform: "YouTube",
       notes: "Top performer this month"
     }
   ]);
 
-  const handleAddMember = (member: Omit<TeamMember, 'id'>) => {
+  const handleRegisterMember = (member: Omit<TeamMember, 'id'>) => {
     const newMember = {
       ...member,
       id: Date.now().toString()
@@ -52,12 +53,16 @@ const Index = () => {
     setTeamMembers([...teamMembers, newMember]);
   };
 
-  const handleEditMember = (id: string, updatedData: Omit<TeamMember, 'id'>) => {
-    setTeamMembers(teamMembers.map(m => m.id === id ? { ...updatedData, id } : m));
+  const handleUpdateProgress = (id: string, progressChecks: boolean[]) => {
+    setTeamMembers(teamMembers.map(m => 
+      m.id === id ? { ...m, progressChecks } : m
+    ));
   };
 
-  const handleDeleteMember = (id: string) => {
-    setTeamMembers(teamMembers.filter(m => m.id !== id));
+  const handleResetProgress = (id: string) => {
+    setTeamMembers(teamMembers.map(m => 
+      m.id === id ? { ...m, progressChecks: new Array(m.targetVideos).fill(false) } : m
+    ));
   };
 
   return (
@@ -66,12 +71,14 @@ const Index = () => {
       
       <main className="container mx-auto px-4 py-8">
         {activeTab === "dashboard" && <Dashboard teamMembers={teamMembers} />}
-        {activeTab === "tracker" && (
+        {activeTab === "registration" && (
+          <Registration onRegister={handleRegisterMember} />
+        )}
+        {activeTab === "tracking" && (
           <TeamTable
             teamMembers={teamMembers}
-            onAdd={handleAddMember}
-            onEdit={handleEditMember}
-            onDelete={handleDeleteMember}
+            onUpdateProgress={handleUpdateProgress}
+            onResetProgress={handleResetProgress}
           />
         )}
         {activeTab === "reports" && <Reports />}

@@ -13,7 +13,7 @@ const COLORS = ['#0EA5E9', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
 export const Dashboard = ({ teamMembers }: DashboardProps) => {
   const totalMembers = teamMembers.length;
   const totalSalary = teamMembers.reduce((sum, member) => sum + member.salary, 0);
-  const totalCompleted = teamMembers.reduce((sum, member) => sum + member.completedVideos, 0);
+  const totalCompleted = teamMembers.reduce((sum, member) => sum + member.progressChecks.filter(Boolean).length, 0);
   const totalTarget = teamMembers.reduce((sum, member) => sum + member.targetVideos, 0);
   const completionRate = totalTarget > 0 ? ((totalCompleted / totalTarget) * 100).toFixed(1) : 0;
 
@@ -29,12 +29,15 @@ export const Dashboard = ({ teamMembers }: DashboardProps) => {
   }, [] as { name: string; value: number }[]);
 
   // Data for completion by member
-  const completionData = teamMembers.map(member => ({
-    name: member.description,
-    completed: member.completedVideos,
-    target: member.targetVideos,
-    rate: member.targetVideos > 0 ? ((member.completedVideos / member.targetVideos) * 100).toFixed(0) : 0
-  })).slice(0, 10);
+  const completionData = teamMembers.map(member => {
+    const completed = member.progressChecks.filter(Boolean).length;
+    return {
+      name: member.description,
+      completed,
+      target: member.targetVideos,
+      rate: member.targetVideos > 0 ? ((completed / member.targetVideos) * 100).toFixed(0) : 0
+    };
+  }).slice(0, 10);
 
   return (
     <div className="space-y-6">

@@ -4,7 +4,7 @@ export interface TeamMember {
   phone: string;
   salary: number;
   targetVideos: number;
-  completedVideos: number;
+  progressChecks: boolean[]; // Array of checkboxes for each target video
   advertisementType: string;
   platform: string;
   notes: string;

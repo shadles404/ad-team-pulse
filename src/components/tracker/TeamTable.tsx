@@ -1,25 +1,21 @@
 import { useState } from "react";
-import { TeamMember, AD_TYPES, PLATFORMS } from "@/types/team";
+import { TeamMember } from "@/types/team";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, Download, Edit, Trash2, CheckCircle, AlertCircle } from "lucide-react";
+import { Search, Download, RotateCcw, CheckCircle, AlertCircle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { MemberDialog } from "./MemberDialog";
+import { ProgressCheckboxes } from "./ProgressCheckboxes";
 import { toast } from "sonner";
 
 interface TeamTableProps {
   teamMembers: TeamMember[];
-  onAdd: (member: Omit<TeamMember, 'id'>) => void;
-  onEdit: (id: string, member: Omit<TeamMember, 'id'>) => void;
-  onDelete: (id: string) => void;
+  onUpdateProgress: (id: string, progressChecks: boolean[]) => void;
+  onResetProgress: (id: string) => void;
 }
 
-export const TeamTable = ({ teamMembers, onAdd, onEdit, onDelete }: TeamTableProps) => {
+export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress }: TeamTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
 
   const filteredMembers = teamMembers.filter(member =>
     member.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,23 +23,26 @@ export const TeamTable = ({ teamMembers, onAdd, onEdit, onDelete }: TeamTablePro
   );
 
   const totalSalary = filteredMembers.reduce((sum, m) => sum + m.salary, 0);
-  const totalCompleted = filteredMembers.reduce((sum, m) => sum + m.completedVideos, 0);
+  const totalCompleted = filteredMembers.reduce((sum, m) => sum + m.progressChecks.filter(Boolean).length, 0);
   const totalTarget = filteredMembers.reduce((sum, m) => sum + m.targetVideos, 0);
 
   const handleExport = () => {
     const headers = ["No.", "Description", "Phone", "Salary", "Target Videos", "Completed Videos", "Status", "Ad Type", "Platform", "Notes"];
-    const rows = filteredMembers.map((member, index) => [
-      index + 1,
-      member.description,
-      member.phone,
-      member.salary,
-      member.targetVideos,
-      member.completedVideos,
-      member.completedVideos >= member.targetVideos ? "Target Reached" : "Not Reached",
-      member.advertisementType,
-      member.platform,
-      member.notes
-    ]);
+    const rows = filteredMembers.map((member, index) => {
+      const completed = member.progressChecks.filter(Boolean).length;
+      return [
+        index + 1,
+        member.description,
+        member.phone,
+        member.salary,
+        member.targetVideos,
+        completed,
+        completed >= member.targetVideos ? "Target Reached" : "Not Reached",
+        member.advertisementType,
+        member.platform,
+        member.notes
+      ];
+    });
 
     const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
@@ -55,26 +54,18 @@ export const TeamTable = ({ teamMembers, onAdd, onEdit, onDelete }: TeamTablePro
     toast.success("Data exported successfully!");
   };
 
-  const handleSave = (data: Omit<TeamMember, 'id'>) => {
-    if (editingMember) {
-      onEdit(editingMember.id, data);
-      toast.success("Member updated successfully!");
-    } else {
-      onAdd(data);
-      toast.success("Member added successfully!");
-    }
-    setDialogOpen(false);
-    setEditingMember(null);
+  const handleToggleProgress = (memberId: string, checkIndex: number) => {
+    const member = teamMembers.find(m => m.id === memberId);
+    if (!member) return;
+
+    const newProgress = [...member.progressChecks];
+    newProgress[checkIndex] = !newProgress[checkIndex];
+    onUpdateProgress(memberId, newProgress);
   };
 
-  const handleEdit = (member: TeamMember) => {
-    setEditingMember(member);
-    setDialogOpen(true);
-  };
-
-  const handleDelete = (id: string) => {
-    onDelete(id);
-    toast.success("Member deleted successfully!");
+  const handleReset = (id: string) => {
+    onResetProgress(id);
+    toast.success("Progress reset successfully!");
   };
 
   return (
@@ -89,16 +80,10 @@ export const TeamTable = ({ teamMembers, onAdd, onEdit, onDelete }: TeamTablePro
             className="pl-10"
           />
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => { setEditingMember(null); setDialogOpen(true); }} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Member
-          </Button>
-          <Button onClick={handleExport} variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export CSV
-          </Button>
-        </div>
+        <Button onClick={handleExport} variant="outline" className="gap-2">
+          <Download className="h-4 w-4" />
+          Export CSV
+        </Button>
       </div>
 
       <div className="rounded-lg border bg-card overflow-hidden">
@@ -107,12 +92,11 @@ export const TeamTable = ({ teamMembers, onAdd, onEdit, onDelete }: TeamTablePro
             <TableHeader>
               <TableRow className="bg-muted/50">
                 <TableHead className="w-16">No.</TableHead>
-                <TableHead>Description</TableHead>
+                <TableHead>Name</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Salary</TableHead>
                 <TableHead>Target</TableHead>
-                <TableHead>Completed</TableHead>
-                <TableHead>Progress</TableHead>
+                <TableHead className="min-w-[250px]">Progress (Checkboxes)</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Ad Type</TableHead>
                 <TableHead>Platform</TableHead>
@@ -122,29 +106,25 @@ export const TeamTable = ({ teamMembers, onAdd, onEdit, onDelete }: TeamTablePro
             </TableHeader>
             <TableBody>
               {filteredMembers.map((member, index) => {
-                const progressPercent = member.targetVideos > 0 
-                  ? Math.min((member.completedVideos / member.targetVideos) * 100, 100) 
-                  : 0;
-                const targetReached = member.completedVideos >= member.targetVideos;
+                const completedCount = member.progressChecks.filter(Boolean).length;
+                const targetReached = completedCount >= member.targetVideos;
+                const notStarted = completedCount === 0;
 
                 return (
                   <TableRow 
                     key={member.id}
-                    className={targetReached ? "bg-success-light/50" : "bg-warning-light/30"}
+                    className={targetReached ? "bg-success-light/50" : notStarted ? "bg-destructive-light/30" : "bg-warning-light/30"}
                   >
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell className="font-medium">{member.description}</TableCell>
                     <TableCell>{member.phone}</TableCell>
                     <TableCell>${member.salary.toLocaleString()}</TableCell>
                     <TableCell>{member.targetVideos}</TableCell>
-                    <TableCell>{member.completedVideos}</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2 min-w-[120px]">
-                        <Progress value={progressPercent} className="h-2" />
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {progressPercent.toFixed(0)}%
-                        </span>
-                      </div>
+                      <ProgressCheckboxes
+                        checks={member.progressChecks}
+                        onToggle={(checkIndex) => handleToggleProgress(member.id, checkIndex)}
+                      />
                     </TableCell>
                     <TableCell>
                       {targetReached ? (
@@ -152,10 +132,15 @@ export const TeamTable = ({ teamMembers, onAdd, onEdit, onDelete }: TeamTablePro
                           <CheckCircle className="h-3 w-3" />
                           Reached
                         </Badge>
+                      ) : notStarted ? (
+                        <Badge variant="default" className="gap-1 bg-destructive hover:bg-destructive">
+                          <AlertCircle className="h-3 w-3" />
+                          Not Started
+                        </Badge>
                       ) : (
                         <Badge variant="default" className="gap-1 bg-warning hover:bg-warning">
                           <AlertCircle className="h-3 w-3" />
-                          Not Reached
+                          In Progress
                         </Badge>
                       )}
                     </TableCell>
@@ -163,22 +148,15 @@ export const TeamTable = ({ teamMembers, onAdd, onEdit, onDelete }: TeamTablePro
                     <TableCell>{member.platform}</TableCell>
                     <TableCell className="max-w-[200px] truncate">{member.notes || "-"}</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(member)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(member.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleReset(member.id)}
+                        className="gap-2"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                        Reset
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );
@@ -207,12 +185,6 @@ export const TeamTable = ({ teamMembers, onAdd, onEdit, onDelete }: TeamTablePro
         </div>
       </div>
 
-      <MemberDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onSave={handleSave}
-        member={editingMember}
-      />
     </div>
   );
 };
