@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { TeamMember, AD_TYPES, PLATFORMS } from "@/types/team";
+import { TeamMember, AD_TYPES, PLATFORMS, CONTRACT_TYPES } from "@/types/team";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,15 +20,16 @@ export const Registration = ({ onRegister }: RegistrationProps) => {
     phone: "",
     salary: "",
     targetVideos: "",
-    advertisementType: "",
+    advertisementTypes: [] as string[],
     platform: "",
+    contractType: "",
     notes: ""
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.description || !formData.phone || !formData.salary || !formData.targetVideos || !formData.advertisementType || !formData.platform) {
+    if (!formData.description || !formData.phone || !formData.salary || !formData.targetVideos || formData.advertisementTypes.length === 0 || !formData.platform || !formData.contractType) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -40,8 +42,9 @@ export const Registration = ({ onRegister }: RegistrationProps) => {
       salary: parseFloat(formData.salary),
       targetVideos: targetCount,
       progressChecks: new Array(targetCount).fill(false),
-      advertisementType: formData.advertisementType,
+      advertisementTypes: formData.advertisementTypes,
       platform: formData.platform,
+      contractType: formData.contractType,
       notes: formData.notes
     });
 
@@ -51,12 +54,22 @@ export const Registration = ({ onRegister }: RegistrationProps) => {
       phone: "",
       salary: "",
       targetVideos: "",
-      advertisementType: "",
+      advertisementTypes: [],
       platform: "",
+      contractType: "",
       notes: ""
     });
 
     toast.success("Advertiser registered successfully!");
+  };
+
+  const toggleAdType = (adType: string) => {
+    setFormData(prev => ({
+      ...prev,
+      advertisementTypes: prev.advertisementTypes.includes(adType)
+        ? prev.advertisementTypes.filter(t => t !== adType)
+        : [...prev.advertisementTypes, adType]
+    }));
   };
 
   return (
@@ -125,26 +138,6 @@ export const Registration = ({ onRegister }: RegistrationProps) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="advertisementType">Advertisement Type *</Label>
-                <Select
-                  value={formData.advertisementType}
-                  onValueChange={(value) => setFormData({ ...formData, advertisementType: value })}
-                  required
-                >
-                  <SelectTrigger id="advertisementType">
-                    <SelectValue placeholder="Select ad type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AD_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="platform">Platform *</Label>
                 <Select
                   value={formData.platform}
@@ -162,6 +155,44 @@ export const Registration = ({ onRegister }: RegistrationProps) => {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contractType">Contract Type *</Label>
+                <Select
+                  value={formData.contractType}
+                  onValueChange={(value) => setFormData({ ...formData, contractType: value })}
+                  required
+                >
+                  <SelectTrigger id="contractType">
+                    <SelectValue placeholder="Select contract type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CONTRACT_TYPES.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Advertisement Types *</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {AD_TYPES.map((type) => (
+                  <div key={type} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`ad-${type}`}
+                      checked={formData.advertisementTypes.includes(type)}
+                      onCheckedChange={() => toggleAdType(type)}
+                    />
+                    <Label htmlFor={`ad-${type}`} className="cursor-pointer font-normal">
+                      {type}
+                    </Label>
+                  </div>
+                ))}
               </div>
             </div>
 

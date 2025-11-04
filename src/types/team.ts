@@ -5,9 +5,10 @@ export interface TeamMember {
   salary: number;
   targetVideos: number;
   progressChecks: boolean[]; // Array of checkboxes for each target video
-  advertisementType: string;
+  advertisementTypes: string[]; // Array of advertisement types
   platform: string;
   notes: string;
+  contractType: string;
 }
 
 export const AD_TYPES = [
@@ -24,4 +25,11 @@ export const PLATFORMS = [
   "Instagram",
   "TikTok",
   "YouTube"
+] as const;
+
+export const CONTRACT_TYPES = [
+  "1 Year",
+  "6 Months",
+  "3 Months",
+  "1 Month"
 ] as const;

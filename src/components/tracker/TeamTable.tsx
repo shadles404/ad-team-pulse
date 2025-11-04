@@ -2,24 +2,27 @@ import { useState } from "react";
 import { TeamMember } from "@/types/team";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Download, RotateCcw, CheckCircle, AlertCircle } from "lucide-react";
+import { Search, Download, RotateCcw, CheckCircle, AlertCircle, Edit } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ProgressCheckboxes } from "./ProgressCheckboxes";
+import { EditMemberDialog } from "./EditMemberDialog";
 import { toast } from "sonner";
 
 interface TeamTableProps {
   teamMembers: TeamMember[];
   onUpdateProgress: (id: string, progressChecks: boolean[]) => void;
   onResetProgress: (id: string) => void;
+  onUpdateMember: (id: string, updates: Partial<TeamMember>) => void;
 }
 
-export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress }: TeamTableProps) => {
+export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress, onUpdateMember }: TeamTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
 
   const filteredMembers = teamMembers.filter(member =>
     member.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.advertisementType.toLowerCase().includes(searchTerm.toLowerCase())
+    member.advertisementTypes.some(type => type.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const totalSalary = filteredMembers.reduce((sum, m) => sum + m.salary, 0);
@@ -27,7 +30,7 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress }: Te
   const totalTarget = filteredMembers.reduce((sum, m) => sum + m.targetVideos, 0);
 
   const handleExport = () => {
-    const headers = ["No.", "Description", "Phone", "Salary", "Target Videos", "Completed Videos", "Status", "Ad Type", "Platform", "Notes"];
+    const headers = ["No.", "Description", "Phone", "Salary", "Contract Type", "Target Videos", "Completed Videos", "Status", "Ad Types", "Platform", "Notes"];
     const rows = filteredMembers.map((member, index) => {
       const completed = member.progressChecks.filter(Boolean).length;
       return [
@@ -35,10 +38,11 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress }: Te
         member.description,
         member.phone,
         member.salary,
+        member.contractType,
         member.targetVideos,
         completed,
         completed >= member.targetVideos ? "Target Reached" : "Not Reached",
-        member.advertisementType,
+        member.advertisementTypes.join("; "),
         member.platform,
         member.notes
       ];
@@ -70,6 +74,15 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress }: Te
 
   return (
     <div className="space-y-4">
+      {editingMember && (
+        <EditMemberDialog
+          member={editingMember}
+          open={!!editingMember}
+          onOpenChange={(open) => !open && setEditingMember(null)}
+          onUpdate={onUpdateMember}
+        />
+      )}
+      
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -95,10 +108,11 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress }: Te
                 <TableHead>Name</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Salary</TableHead>
+                <TableHead>Contract</TableHead>
                 <TableHead>Target</TableHead>
                 <TableHead className="min-w-[250px]">Progress (Checkboxes)</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Ad Type</TableHead>
+                <TableHead>Ad Types</TableHead>
                 <TableHead>Platform</TableHead>
                 <TableHead>Notes</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -119,6 +133,7 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress }: Te
                     <TableCell className="font-medium">{member.description}</TableCell>
                     <TableCell>{member.phone}</TableCell>
                     <TableCell>${member.salary.toLocaleString()}</TableCell>
+                    <TableCell>{member.contractType}</TableCell>
                     <TableCell>{member.targetVideos}</TableCell>
                     <TableCell>
                       <ProgressCheckboxes
@@ -144,19 +159,36 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress }: Te
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell>{member.advertisementType}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {member.advertisementTypes.map(type => (
+                          <Badge key={type} variant="outline" className="text-xs">{type}</Badge>
+                        ))}
+                      </div>
+                    </TableCell>
                     <TableCell>{member.platform}</TableCell>
                     <TableCell className="max-w-[200px] truncate">{member.notes || "-"}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleReset(member.id)}
-                        className="gap-2"
-                      >
-                        <RotateCcw className="h-4 w-4" />
-                        Reset
-                      </Button>
+                      <div className="flex gap-1 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditingMember(member)}
+                          className="gap-2"
+                        >
+                          <Edit className="h-4 w-4" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleReset(member.id)}
+                          className="gap-2"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                          Reset
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

@@ -29,8 +29,9 @@ export function useTeamMembers(userId: string | undefined) {
         salary: item.salary,
         targetVideos: item.target_videos,
         progressChecks: item.progress_checks,
-        advertisementType: item.advertisement_type,
+        advertisementTypes: item.advertisement_types || [],
         platform: item.platform,
+        contractType: item.contract_type || "",
         notes: item.notes || "",
       }));
 
@@ -53,8 +54,9 @@ export function useTeamMembers(userId: string | undefined) {
         salary: member.salary,
         target_videos: member.targetVideos,
         progress_checks: member.progressChecks,
-        advertisement_type: member.advertisementType,
+        advertisement_types: member.advertisementTypes,
         platform: member.platform,
+        contract_type: member.contractType,
         notes: member.notes,
       });
 
@@ -64,6 +66,32 @@ export function useTeamMembers(userId: string | undefined) {
       await fetchTeamMembers();
     } catch (error) {
       toast.error("Failed to register advertiser");
+    }
+  };
+
+  const updateTeamMember = async (id: string, updates: Partial<TeamMember>) => {
+    try {
+      const updateData: any = {};
+      
+      if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.phone !== undefined) updateData.phone = updates.phone;
+      if (updates.salary !== undefined) updateData.salary = updates.salary;
+      if (updates.advertisementTypes !== undefined) updateData.advertisement_types = updates.advertisementTypes;
+      if (updates.platform !== undefined) updateData.platform = updates.platform;
+      if (updates.contractType !== undefined) updateData.contract_type = updates.contractType;
+      if (updates.notes !== undefined) updateData.notes = updates.notes;
+
+      const { error } = await supabase
+        .from("team_members")
+        .update(updateData)
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast.success("Team member updated successfully!");
+      await fetchTeamMembers();
+    } catch (error) {
+      toast.error("Failed to update team member");
     }
   };
 
@@ -111,6 +139,7 @@ export function useTeamMembers(userId: string | undefined) {
     teamMembers,
     loading,
     addTeamMember,
+    updateTeamMember,
     updateProgress,
     resetProgress,
     refetch: fetchTeamMembers,

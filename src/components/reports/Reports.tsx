@@ -1,7 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3 } from "lucide-react";
+import { TeamMember } from "@/types/team";
+import { ReportsCharts } from "./ReportsCharts";
 
-export const Reports = () => {
+interface ReportsProps {
+  teamMembers: TeamMember[];
+}
+
+export const Reports = ({ teamMembers }: ReportsProps) => {
   return (
     <div className="space-y-6">
       <Card>
@@ -13,17 +19,12 @@ export const Reports = () => {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            Advanced reporting features coming soon. This section will include:
+            Comprehensive analytics and insights for your advertising team performance.
           </p>
-          <ul className="mt-4 space-y-2 text-sm text-muted-foreground list-disc list-inside">
-            <li>Performance trends over time</li>
-            <li>Individual team member reports</li>
-            <li>Ad campaign effectiveness analysis</li>
-            <li>Platform-specific metrics</li>
-            <li>Custom date range filtering</li>
-          </ul>
         </CardContent>
       </Card>
+
+      <ReportsCharts teamMembers={teamMembers} />
     </div>
   );
 };

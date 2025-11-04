@@ -12,7 +12,7 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 const Index = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
-  const { teamMembers, loading: dataLoading, addTeamMember, updateProgress, resetProgress } = useTeamMembers(user?.id);
+  const { teamMembers, loading: dataLoading, addTeamMember, updateTeamMember, updateProgress, resetProgress } = useTeamMembers(user?.id);
   const [activeTab, setActiveTab] = useState("dashboard");
 
   useEffect(() => {
@@ -50,9 +50,10 @@ const Index = () => {
             teamMembers={teamMembers}
             onUpdateProgress={updateProgress}
             onResetProgress={resetProgress}
+            onUpdateMember={updateTeamMember}
           />
         )}
-        {activeTab === "reports" && <Reports />}
+        {activeTab === "reports" && <Reports teamMembers={teamMembers} />}
         {activeTab === "settings" && <Settings />}
       </main>
     </div>

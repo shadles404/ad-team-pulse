@@ -19,12 +19,14 @@ export const Dashboard = ({ teamMembers }: DashboardProps) => {
 
   // Data for ads by type
   const adTypeData = teamMembers.reduce((acc, member) => {
-    const existing = acc.find(item => item.name === member.advertisementType);
-    if (existing) {
-      existing.value += 1;
-    } else {
-      acc.push({ name: member.advertisementType, value: 1 });
-    }
+    member.advertisementTypes.forEach(adType => {
+      const existing = acc.find(item => item.name === adType);
+      if (existing) {
+        existing.value += 1;
+      } else {
+        acc.push({ name: adType, value: 1 });
+      }
+    });
     return acc;
   }, [] as { name: string; value: number }[]);
 
