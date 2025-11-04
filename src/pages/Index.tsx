@@ -1,84 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { Registration } from "@/components/registration/Registration";
 import { TeamTable } from "@/components/tracker/TeamTable";
 import { Reports } from "@/components/reports/Reports";
 import { Settings } from "@/components/settings/Settings";
-import { TeamMember } from "@/types/team";
+import { useAuth } from "@/hooks/useAuth";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { teamMembers, loading: dataLoading, addTeamMember, updateProgress, resetProgress } = useTeamMembers(user?.id);
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
-    {
-      id: "1",
-      description: "Sarah Johnson",
-      phone: "+1234567890",
-      salary: 3500,
-      targetVideos: 4,
-      progressChecks: [true, true, true, true],
-      advertisementType: "Makeup Ad",
-      platform: "Instagram",
-      notes: "Excellent engagement rates"
-    },
-    {
-      id: "2",
-      description: "Mike Chen",
-      phone: "+1234567891",
-      salary: 3200,
-      targetVideos: 5,
-      progressChecks: [true, true, false, false, false],
-      advertisementType: "Skincare Ad",
-      platform: "TikTok",
-      notes: "Working on new campaign"
-    },
-    {
-      id: "3",
-      description: "Emma Davis",
-      phone: "+1234567892",
-      salary: 4000,
-      targetVideos: 6,
-      progressChecks: [false, false, false, false, false, false],
-      advertisementType: "Perfume Ad",
-      platform: "YouTube",
-      notes: "Top performer this month"
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
     }
-  ]);
+  }, [user, authLoading, navigate]);
 
-  const handleRegisterMember = (member: Omit<TeamMember, 'id'>) => {
-    const newMember = {
-      ...member,
-      id: Date.now().toString()
-    };
-    setTeamMembers([...teamMembers, newMember]);
-  };
+  if (authLoading || dataLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const handleUpdateProgress = (id: string, progressChecks: boolean[]) => {
-    setTeamMembers(teamMembers.map(m => 
-      m.id === id ? { ...m, progressChecks } : m
-    ));
-  };
-
-  const handleResetProgress = (id: string) => {
-    setTeamMembers(teamMembers.map(m => 
-      m.id === id ? { ...m, progressChecks: new Array(m.targetVideos).fill(false) } : m
-    ));
-  };
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <Navigation activeTab={activeTab} onTabChange={setActiveTab} onSignOut={signOut} />
       
       <main className="container mx-auto px-4 py-8">
         {activeTab === "dashboard" && <Dashboard teamMembers={teamMembers} />}
         {activeTab === "registration" && (
-          <Registration onRegister={handleRegisterMember} />
+          <Registration onRegister={addTeamMember} />
         )}
         {activeTab === "tracking" && (
           <TeamTable
             teamMembers={teamMembers}
-            onUpdateProgress={handleUpdateProgress}
-            onResetProgress={handleResetProgress}
+            onUpdateProgress={updateProgress}
+            onResetProgress={resetProgress}
           />
         )}
         {activeTab === "reports" && <Reports />}

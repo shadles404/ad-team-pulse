@@ -1,17 +1,33 @@
-import { LayoutDashboard, UserPlus, CheckSquare, BarChart3, Settings } from "lucide-react";
+import { LayoutDashboard, UserPlus, CheckSquare, BarChart3, Settings, LogOut, TrendingUp } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 
 interface NavigationProps {
   activeTab: string;
   onTabChange: (value: string) => void;
+  onSignOut: () => void;
 }
 
-export const Navigation = ({ activeTab, onTabChange }: NavigationProps) => {
+export const Navigation = ({ activeTab, onTabChange, onSignOut }: NavigationProps) => {
   return (
     <div className="border-b bg-card shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-foreground">TikTok Advertiser Tracker</h1>
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <TrendingUp className="h-5 w-5 text-primary" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">TikTok Advertiser Tracker</h1>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onSignOut}
+            className="flex items-center gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </Button>
         </div>
         
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
