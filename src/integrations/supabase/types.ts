@@ -37,7 +37,8 @@ export type Database = {
       }
       team_members: {
         Row: {
-          advertisement_type: string
+          advertisement_types: string[]
+          contract_type: string | null
           created_at: string | null
           description: string
           id: string
@@ -51,7 +52,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          advertisement_type: string
+          advertisement_types?: string[]
+          contract_type?: string | null
           created_at?: string | null
           description: string
           id?: string
@@ -65,7 +67,8 @@ export type Database = {
           user_id: string
         }
         Update: {
-          advertisement_type?: string
+          advertisement_types?: string[]
+          contract_type?: string | null
           created_at?: string | null
           description?: string
           id?: string
