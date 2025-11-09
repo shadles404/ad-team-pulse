@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      deliveries: {
+        Row: {
+          celebrity_name: string
+          created_at: string
+          date_sent: string
+          delivery_status: string
+          id: string
+          notes: string | null
+          product_name: string
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          celebrity_name: string
+          created_at?: string
+          date_sent?: string
+          delivery_status?: string
+          id?: string
+          notes?: string | null
+          product_name: string
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          celebrity_name?: string
+          created_at?: string
+          date_sent?: string
+          delivery_status?: string
+          id?: string
+          notes?: string | null
+          product_name?: string
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null

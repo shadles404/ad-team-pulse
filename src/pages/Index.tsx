@@ -8,11 +8,14 @@ import { Reports } from "@/components/reports/Reports";
 import { Settings } from "@/components/settings/Settings";
 import { useAuth } from "@/hooks/useAuth";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useDeliveries } from "@/hooks/useDeliveries";
+import { Delivery } from "@/components/delivery/Delivery";
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
   const { teamMembers, loading: dataLoading, addTeamMember, updateTeamMember, updateProgress, resetProgress } = useTeamMembers(user?.id);
+  const { deliveries, loading: deliveriesLoading, addDelivery, updateDelivery, deleteDelivery } = useDeliveries(user?.id);
   const [activeTab, setActiveTab] = useState("dashboard");
 
   useEffect(() => {
@@ -21,7 +24,7 @@ const Index = () => {
     }
   }, [user, authLoading, navigate]);
 
-  if (authLoading || dataLoading) {
+  if (authLoading || dataLoading || deliveriesLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -51,6 +54,15 @@ const Index = () => {
             onUpdateProgress={updateProgress}
             onResetProgress={resetProgress}
             onUpdateMember={updateTeamMember}
+          />
+        )}
+        {activeTab === "delivery" && (
+          <Delivery
+            deliveries={deliveries}
+            onAdd={addDelivery}
+            onUpdate={updateDelivery}
+            onDelete={deleteDelivery}
+            userId={user.id}
           />
         )}
         {activeTab === "reports" && <Reports teamMembers={teamMembers} />}

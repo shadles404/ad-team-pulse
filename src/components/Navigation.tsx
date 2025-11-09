@@ -1,4 +1,4 @@
-import { LayoutDashboard, UserPlus, CheckSquare, BarChart3, Settings, LogOut, TrendingUp } from "lucide-react";
+import { LayoutDashboard, UserPlus, CheckSquare, BarChart3, Settings, LogOut, TrendingUp, Package } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 
@@ -31,7 +31,7 @@ export const Navigation = ({ activeTab, onTabChange, onSignOut }: NavigationProp
         </div>
         
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-          <TabsList className="grid w-full max-w-3xl grid-cols-5 bg-muted">
+          <TabsList className="grid w-full max-w-4xl grid-cols-6 bg-muted">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-card">
               <LayoutDashboard className="mr-2 h-4 w-4" />
               Dashboard
@@ -43,6 +43,10 @@ export const Navigation = ({ activeTab, onTabChange, onSignOut }: NavigationProp
             <TabsTrigger value="tracking" className="data-[state=active]:bg-card">
               <CheckSquare className="mr-2 h-4 w-4" />
               Tracking
+            </TabsTrigger>
+            <TabsTrigger value="delivery" className="data-[state=active]:bg-card">
+              <Package className="mr-2 h-4 w-4" />
+              Delivery
             </TabsTrigger>
             <TabsTrigger value="reports" className="data-[state=active]:bg-card">
               <BarChart3 className="mr-2 h-4 w-4" />
