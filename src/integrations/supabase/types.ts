@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       deliveries: {
         Row: {
+          celebrity_id: string | null
           celebrity_name: string
           created_at: string
           date_sent: string
@@ -28,6 +29,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          celebrity_id?: string | null
           celebrity_name: string
           created_at?: string
           date_sent?: string
@@ -40,6 +42,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          celebrity_id?: string | null
           celebrity_name?: string
           created_at?: string
           date_sent?: string
@@ -51,7 +54,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "deliveries_celebrity_id_fkey"
+            columns: ["celebrity_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

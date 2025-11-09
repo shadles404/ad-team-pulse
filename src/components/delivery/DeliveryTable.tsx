@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Pencil, Trash2, Search } from "lucide-react";
 import { Delivery } from "@/types/delivery";
+import { TeamMember } from "@/types/team";
 import { EditDeliveryDialog } from "./EditDeliveryDialog";
 import { format } from "date-fns";
 
@@ -13,9 +14,10 @@ interface DeliveryTableProps {
   deliveries: Delivery[];
   onUpdate: (id: string, updates: Partial<Delivery>) => void;
   onDelete: (id: string) => void;
+  teamMembers: TeamMember[];
 }
 
-export const DeliveryTable = ({ deliveries, onUpdate, onDelete }: DeliveryTableProps) => {
+export const DeliveryTable = ({ deliveries, onUpdate, onDelete, teamMembers }: DeliveryTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingDelivery, setEditingDelivery] = useState<Delivery | null>(null);
 
@@ -129,6 +131,7 @@ export const DeliveryTable = ({ deliveries, onUpdate, onDelete }: DeliveryTableP
             onUpdate(editingDelivery.id, updates);
             setEditingDelivery(null);
           }}
+          teamMembers={teamMembers}
         />
       )}
     </>

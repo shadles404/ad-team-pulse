@@ -63,6 +63,7 @@ const Index = () => {
             onUpdate={updateDelivery}
             onDelete={deleteDelivery}
             userId={user.id}
+            teamMembers={teamMembers}
           />
         )}
         {activeTab === "reports" && <Reports teamMembers={teamMembers} />}

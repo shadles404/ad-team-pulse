@@ -2,6 +2,7 @@ export interface Delivery {
   id: string;
   userId: string;
   celebName: string;
+  celebId?: string;
   productName: string;
   quantity: number;
   dateSent: string;

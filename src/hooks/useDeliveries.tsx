@@ -27,6 +27,7 @@ export const useDeliveries = (userId: string | undefined) => {
         id: d.id,
         userId: d.user_id,
         celebName: d.celebrity_name,
+        celebId: d.celebrity_id,
         productName: d.product_name,
         quantity: d.quantity,
         dateSent: d.date_sent,
@@ -53,6 +54,7 @@ export const useDeliveries = (userId: string | undefined) => {
       const { error } = await supabase.from("deliveries").insert({
         user_id: delivery.userId,
         celebrity_name: delivery.celebName,
+        celebrity_id: delivery.celebId,
         product_name: delivery.productName,
         quantity: delivery.quantity,
         date_sent: delivery.dateSent,
@@ -83,6 +85,7 @@ export const useDeliveries = (userId: string | undefined) => {
         .from("deliveries")
         .update({
           celebrity_name: updates.celebName,
+          celebrity_id: updates.celebId,
           product_name: updates.productName,
           quantity: updates.quantity,
           date_sent: updates.dateSent,

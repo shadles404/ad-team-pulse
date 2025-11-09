@@ -6,16 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Delivery, DELIVERY_STATUSES } from "@/types/delivery";
+import { TeamMember } from "@/types/team";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface EditDeliveryDialogProps {
   delivery: Delivery;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (updates: Partial<Delivery>) => void;
+  teamMembers: TeamMember[];
 }
 
-export const EditDeliveryDialog = ({ delivery, open, onOpenChange, onSave }: EditDeliveryDialogProps) => {
+export const EditDeliveryDialog = ({ delivery, open, onOpenChange, onSave, teamMembers }: EditDeliveryDialogProps) => {
+  const [comboOpen, setComboOpen] = useState(false);
   const [formData, setFormData] = useState({
+    celebId: delivery.celebId || "",
     celebName: delivery.celebName,
     productName: delivery.productName,
     quantity: delivery.quantity,
@@ -41,13 +49,54 @@ export const EditDeliveryDialog = ({ delivery, open, onOpenChange, onSave }: Edi
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-celebName">Celebrity Name</Label>
-              <Input
-                id="edit-celebName"
-                value={formData.celebName}
-                onChange={(e) => setFormData({ ...formData, celebName: e.target.value })}
-                required
-              />
+              <Label>Celebrity/Influencer</Label>
+              <Popover open={comboOpen} onOpenChange={setComboOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={comboOpen}
+                    className="w-full justify-between"
+                  >
+                    {formData.celebId
+                      ? teamMembers.find((member) => member.id === formData.celebId)?.description
+                      : "Select celebrity..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput placeholder="Search celebrity..." />
+                    <CommandList>
+                      <CommandEmpty>No celebrity found.</CommandEmpty>
+                      <CommandGroup>
+                        {teamMembers.map((member) => (
+                          <CommandItem
+                            key={member.id}
+                            value={member.description}
+                            onSelect={() => {
+                              setFormData({ 
+                                ...formData, 
+                                celebId: member.id,
+                                celebName: member.description 
+                              });
+                              setComboOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                formData.celebId === member.id ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {member.description}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="space-y-2">
