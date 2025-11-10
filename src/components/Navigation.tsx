@@ -1,14 +1,16 @@
 import { LayoutDashboard, UserPlus, CheckSquare, BarChart3, Settings, LogOut, TrendingUp, Package } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface NavigationProps {
   activeTab: string;
   onTabChange: (value: string) => void;
   onSignOut: () => void;
+  userRole?: "admin" | "user" | null;
 }
 
-export const Navigation = ({ activeTab, onTabChange, onSignOut }: NavigationProps) => {
+export const Navigation = ({ activeTab, onTabChange, onSignOut, userRole }: NavigationProps) => {
   return (
     <div className="border-b bg-card shadow-sm">
       <div className="container mx-auto px-4 py-4">
@@ -19,15 +21,22 @@ export const Navigation = ({ activeTab, onTabChange, onSignOut }: NavigationProp
             </div>
             <h1 className="text-2xl font-bold text-foreground">TikTok Advertiser Tracker</h1>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onSignOut}
-            className="flex items-center gap-2"
-          >
-            <LogOut className="h-4 w-4" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-3">
+            {userRole && (
+              <Badge variant={userRole === "admin" ? "default" : "secondary"}>
+                Role: {userRole === "admin" ? "Admin" : "User"}
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onSignOut}
+              className="flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
         
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">

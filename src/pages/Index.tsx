@@ -17,7 +17,7 @@ const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const { teamMembers, loading: dataLoading, addTeamMember, updateTeamMember, updateProgress, resetProgress } = useTeamMembers(user?.id);
   const { deliveries, loading: deliveriesLoading, addDelivery, updateDelivery, deleteDelivery } = useDeliveries(user?.id);
-  const { isAdmin, loading: roleLoading } = useUserRole(user?.id);
+  const { role, isAdmin, loading: roleLoading } = useUserRole(user?.id);
   const [activeTab, setActiveTab] = useState("dashboard");
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation activeTab={activeTab} onTabChange={setActiveTab} onSignOut={signOut} />
+      <Navigation activeTab={activeTab} onTabChange={setActiveTab} onSignOut={signOut} userRole={role} />
       
       <main className="container mx-auto px-4 py-8">
         {activeTab === "dashboard" && <Dashboard teamMembers={teamMembers} />}
