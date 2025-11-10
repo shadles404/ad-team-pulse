@@ -9,6 +9,7 @@ import { Settings } from "@/components/settings/Settings";
 import { useAuth } from "@/hooks/useAuth";
 import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useDeliveries } from "@/hooks/useDeliveries";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Delivery } from "@/components/delivery/Delivery";
 
 const Index = () => {
@@ -16,6 +17,7 @@ const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const { teamMembers, loading: dataLoading, addTeamMember, updateTeamMember, updateProgress, resetProgress } = useTeamMembers(user?.id);
   const { deliveries, loading: deliveriesLoading, addDelivery, updateDelivery, deleteDelivery } = useDeliveries(user?.id);
+  const { isAdmin, loading: roleLoading } = useUserRole(user?.id);
   const [activeTab, setActiveTab] = useState("dashboard");
 
   useEffect(() => {
@@ -24,7 +26,7 @@ const Index = () => {
     }
   }, [user, authLoading, navigate]);
 
-  if (authLoading || dataLoading || deliveriesLoading) {
+  if (authLoading || dataLoading || deliveriesLoading || roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -64,6 +66,7 @@ const Index = () => {
             onDelete={deleteDelivery}
             userId={user.id}
             teamMembers={teamMembers}
+            isAdmin={isAdmin}
           />
         )}
         {activeTab === "reports" && <Reports teamMembers={teamMembers} />}

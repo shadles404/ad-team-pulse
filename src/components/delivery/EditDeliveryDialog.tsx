@@ -29,6 +29,7 @@ export const EditDeliveryDialog = ({ delivery, open, onOpenChange, onSave, teamM
     quantity: delivery.quantity,
     dateSent: new Date(delivery.dateSent).toISOString().split("T")[0],
     deliveryStatus: delivery.deliveryStatus,
+    deliveryPrice: delivery.deliveryPrice || 0,
     notes: delivery.notes || "",
   });
 
@@ -149,6 +150,19 @@ export const EditDeliveryDialog = ({ delivery, open, onOpenChange, onSave, teamM
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-deliveryPrice">Delivery Price</Label>
+              <Input
+                id="edit-deliveryPrice"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.deliveryPrice}
+                onChange={(e) => setFormData({ ...formData, deliveryPrice: parseFloat(e.target.value) || 0 })}
+                required
+              />
             </div>
           </div>
 

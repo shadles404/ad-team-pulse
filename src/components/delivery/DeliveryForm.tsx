@@ -27,6 +27,7 @@ export const DeliveryForm = ({ onSubmit, userId, teamMembers }: DeliveryFormProp
     quantity: 1,
     dateSent: new Date().toISOString().split("T")[0],
     deliveryStatus: "Pending",
+    deliveryPrice: 0,
     notes: "",
   });
 
@@ -44,6 +45,7 @@ export const DeliveryForm = ({ onSubmit, userId, teamMembers }: DeliveryFormProp
       quantity: 1,
       dateSent: new Date().toISOString().split("T")[0],
       deliveryStatus: "Pending",
+      deliveryPrice: 0,
       notes: "",
     });
   };
@@ -157,6 +159,19 @@ export const DeliveryForm = ({ onSubmit, userId, teamMembers }: DeliveryFormProp
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="deliveryPrice">Delivery Price *</Label>
+              <Input
+                id="deliveryPrice"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.deliveryPrice}
+                onChange={(e) => setFormData({ ...formData, deliveryPrice: parseFloat(e.target.value) || 0 })}
+                required
+              />
             </div>
           </div>
 

@@ -15,9 +15,10 @@ interface DeliveryTableProps {
   onUpdate: (id: string, updates: Partial<Delivery>) => void;
   onDelete: (id: string) => void;
   teamMembers: TeamMember[];
+  isAdmin: boolean;
 }
 
-export const DeliveryTable = ({ deliveries, onUpdate, onDelete, teamMembers }: DeliveryTableProps) => {
+export const DeliveryTable = ({ deliveries, onUpdate, onDelete, teamMembers, isAdmin }: DeliveryTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingDelivery, setEditingDelivery] = useState<Delivery | null>(null);
 
@@ -69,14 +70,15 @@ export const DeliveryTable = ({ deliveries, onUpdate, onDelete, teamMembers }: D
                   <TableHead>Quantity</TableHead>
                   <TableHead>Date Sent</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Price</TableHead>
                   <TableHead>Notes</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  {isAdmin && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredDeliveries.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground">
+                    <TableCell colSpan={isAdmin ? 9 : 8} className="text-center text-muted-foreground">
                       No delivery records found
                     </TableCell>
                   </TableRow>
@@ -92,27 +94,30 @@ export const DeliveryTable = ({ deliveries, onUpdate, onDelete, teamMembers }: D
                           {delivery.deliveryStatus}
                         </Badge>
                       </TableCell>
+                      <TableCell>${delivery.deliveryPrice.toFixed(2)}</TableCell>
                       <TableCell className="max-w-xs truncate">
                         {delivery.notes || "-"}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditingDelivery(delivery)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onDelete(delivery.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+                      {isAdmin && (
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingDelivery(delivery)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onDelete(delivery.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 )}

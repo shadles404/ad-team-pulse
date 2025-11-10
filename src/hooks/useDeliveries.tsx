@@ -32,6 +32,7 @@ export const useDeliveries = (userId: string | undefined) => {
         quantity: d.quantity,
         dateSent: d.date_sent,
         deliveryStatus: d.delivery_status,
+        deliveryPrice: d.delivery_price || 0,
         notes: d.notes,
         createdAt: d.created_at,
         updatedAt: d.updated_at,
@@ -59,6 +60,7 @@ export const useDeliveries = (userId: string | undefined) => {
         quantity: delivery.quantity,
         date_sent: delivery.dateSent,
         delivery_status: delivery.deliveryStatus,
+        delivery_price: delivery.deliveryPrice,
         notes: delivery.notes,
       });
 
@@ -90,6 +92,7 @@ export const useDeliveries = (userId: string | undefined) => {
           quantity: updates.quantity,
           date_sent: updates.dateSent,
           delivery_status: updates.deliveryStatus,
+          delivery_price: updates.deliveryPrice,
           notes: updates.notes,
         })
         .eq("id", id);

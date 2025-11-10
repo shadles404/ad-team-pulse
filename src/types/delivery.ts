@@ -7,6 +7,7 @@ export interface Delivery {
   quantity: number;
   dateSent: string;
   deliveryStatus: string;
+  deliveryPrice: number;
   notes?: string;
   createdAt: string;
   updatedAt: string;
