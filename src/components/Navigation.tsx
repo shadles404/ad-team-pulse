@@ -8,9 +8,10 @@ interface NavigationProps {
   onTabChange: (value: string) => void;
   onSignOut: () => void;
   userRole?: "admin" | "user" | null;
+  isAdmin: boolean;
 }
 
-export const Navigation = ({ activeTab, onTabChange, onSignOut, userRole }: NavigationProps) => {
+export const Navigation = ({ activeTab, onTabChange, onSignOut, userRole, isAdmin }: NavigationProps) => {
   return (
     <div className="border-b bg-card shadow-sm">
       <div className="container mx-auto px-4 py-4">
@@ -40,15 +41,17 @@ export const Navigation = ({ activeTab, onTabChange, onSignOut, userRole }: Navi
         </div>
         
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-          <TabsList className="grid w-full max-w-4xl grid-cols-6 bg-muted">
+          <TabsList className={`grid w-full max-w-4xl ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'} bg-muted`}>
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-card">
               <LayoutDashboard className="mr-2 h-4 w-4" />
               Dashboard
             </TabsTrigger>
-            <TabsTrigger value="registration" className="data-[state=active]:bg-card">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Registration
-            </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="registration" className="data-[state=active]:bg-card">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Registration
+              </TabsTrigger>
+            )}
             <TabsTrigger value="tracking" className="data-[state=active]:bg-card">
               <CheckSquare className="mr-2 h-4 w-4" />
               Tracking

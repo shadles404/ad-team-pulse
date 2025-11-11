@@ -14,9 +14,10 @@ interface TeamTableProps {
   onUpdateProgress: (id: string, progressChecks: boolean[]) => void;
   onResetProgress: (id: string) => void;
   onUpdateMember: (id: string, updates: Partial<TeamMember>) => void;
+  isAdmin: boolean;
 }
 
-export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress, onUpdateMember }: TeamTableProps) => {
+export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress, onUpdateMember, isAdmin }: TeamTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
 
@@ -59,6 +60,7 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress, onUp
   };
 
   const handleToggleProgress = (memberId: string, checkIndex: number) => {
+    if (!isAdmin) return;
     const member = teamMembers.find(m => m.id === memberId);
     if (!member) return;
 
@@ -68,6 +70,7 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress, onUp
   };
 
   const handleReset = (id: string) => {
+    if (!isAdmin) return;
     onResetProgress(id);
     toast.success("Progress reset successfully!");
   };
@@ -115,7 +118,7 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress, onUp
                 <TableHead>Ad Types</TableHead>
                 <TableHead>Platform</TableHead>
                 <TableHead>Notes</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                {isAdmin && <TableHead className="text-right">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -139,6 +142,7 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress, onUp
                       <ProgressCheckboxes
                         checks={member.progressChecks}
                         onToggle={(checkIndex) => handleToggleProgress(member.id, checkIndex)}
+                        disabled={!isAdmin}
                       />
                     </TableCell>
                     <TableCell>
@@ -168,28 +172,30 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onResetProgress, onUp
                     </TableCell>
                     <TableCell>{member.platform}</TableCell>
                     <TableCell className="max-w-[200px] truncate">{member.notes || "-"}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex gap-1 justify-end">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setEditingMember(member)}
-                          className="gap-2"
-                        >
-                          <Edit className="h-4 w-4" />
-                          Edit
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleReset(member.id)}
-                          className="gap-2"
-                        >
-                          <RotateCcw className="h-4 w-4" />
-                          Reset
-                        </Button>
-                      </div>
-                    </TableCell>
+                    {isAdmin && (
+                      <TableCell className="text-right">
+                        <div className="flex gap-1 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingMember(member)}
+                            className="gap-2"
+                          >
+                            <Edit className="h-4 w-4" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleReset(member.id)}
+                            className="gap-2"
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                            Reset
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })}

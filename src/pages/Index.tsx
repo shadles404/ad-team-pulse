@@ -43,7 +43,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation activeTab={activeTab} onTabChange={setActiveTab} onSignOut={signOut} userRole={role} />
+      <Navigation activeTab={activeTab} onTabChange={setActiveTab} onSignOut={signOut} userRole={role} isAdmin={isAdmin} />
       
       <main className="container mx-auto px-4 py-8">
         {activeTab === "dashboard" && <Dashboard teamMembers={teamMembers} />}
@@ -56,6 +56,7 @@ const Index = () => {
             onUpdateProgress={updateProgress}
             onResetProgress={resetProgress}
             onUpdateMember={updateTeamMember}
+            isAdmin={isAdmin}
           />
         )}
         {activeTab === "delivery" && (
