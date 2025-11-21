@@ -28,6 +28,11 @@ export const DeliveryTable = ({ deliveries, onUpdate, onDelete, teamMembers, isA
     delivery.deliveryStatus.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const totalDeliveryPrice = filteredDeliveries.reduce(
+    (sum, delivery) => sum + delivery.deliveryPrice,
+    0
+  );
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Delivered":
@@ -58,6 +63,12 @@ export const DeliveryTable = ({ deliveries, onUpdate, onDelete, teamMembers, isA
                 className="pl-8"
               />
             </div>
+          </div>
+          <div className="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+            <p className="text-sm text-muted-foreground">Total Delivery Price</p>
+            <p className="text-2xl font-bold text-primary">
+              ${totalDeliveryPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
           </div>
         </CardHeader>
         <CardContent>
