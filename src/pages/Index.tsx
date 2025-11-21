@@ -11,12 +11,15 @@ import { useTeamMembers } from "@/hooks/useTeamMembers";
 import { useDeliveries } from "@/hooks/useDeliveries";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Delivery } from "@/components/delivery/Delivery";
+import { PaymentConfirmation } from "@/components/payment/PaymentConfirmation";
+import { usePaymentConfirmations } from "@/hooks/usePaymentConfirmations";
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
   const { teamMembers, loading: dataLoading, addTeamMember, updateTeamMember, updateProgress, resetProgress } = useTeamMembers(user?.id);
   const { deliveries, loading: deliveriesLoading, addDelivery, updateDelivery, deleteDelivery } = useDeliveries(user?.id);
+  const { confirmations, loading: paymentsLoading, addConfirmation, deleteConfirmation } = usePaymentConfirmations(user?.id);
   const { role, isAdmin, loading: roleLoading } = useUserRole(user?.id);
   const [activeTab, setActiveTab] = useState("dashboard");
 
@@ -26,7 +29,7 @@ const Index = () => {
     }
   }, [user, authLoading, navigate]);
 
-  if (authLoading || dataLoading || deliveriesLoading || roleLoading) {
+  if (authLoading || dataLoading || deliveriesLoading || paymentsLoading || roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -65,6 +68,16 @@ const Index = () => {
             onAdd={addDelivery}
             onUpdate={updateDelivery}
             onDelete={deleteDelivery}
+            userId={user.id}
+            teamMembers={teamMembers}
+            isAdmin={isAdmin}
+          />
+        )}
+        {activeTab === "payment" && (
+          <PaymentConfirmation
+            confirmations={confirmations}
+            onAdd={addConfirmation}
+            onDelete={deleteConfirmation}
             userId={user.id}
             teamMembers={teamMembers}
             isAdmin={isAdmin}

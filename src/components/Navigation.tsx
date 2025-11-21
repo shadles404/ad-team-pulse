@@ -1,4 +1,4 @@
-import { LayoutDashboard, UserPlus, CheckSquare, BarChart3, Settings, LogOut, TrendingUp, Package } from "lucide-react";
+import { LayoutDashboard, UserPlus, CheckSquare, BarChart3, Settings, LogOut, TrendingUp, Package, DollarSign } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +41,7 @@ export const Navigation = ({ activeTab, onTabChange, onSignOut, userRole, isAdmi
         </div>
         
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-          <TabsList className={`grid w-full max-w-4xl ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'} bg-muted`}>
+          <TabsList className={`grid w-full max-w-4xl ${isAdmin ? 'grid-cols-7' : 'grid-cols-6'} bg-muted`}>
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-card">
               <LayoutDashboard className="mr-2 h-4 w-4" />
               Dashboard
@@ -59,6 +59,10 @@ export const Navigation = ({ activeTab, onTabChange, onSignOut, userRole, isAdmi
             <TabsTrigger value="delivery" className="data-[state=active]:bg-card">
               <Package className="mr-2 h-4 w-4" />
               Delivery
+            </TabsTrigger>
+            <TabsTrigger value="payment" className="data-[state=active]:bg-card">
+              <DollarSign className="mr-2 h-4 w-4" />
+              Payment Confirmation
             </TabsTrigger>
             <TabsTrigger value="reports" className="data-[state=active]:bg-card">
               <BarChart3 className="mr-2 h-4 w-4" />
