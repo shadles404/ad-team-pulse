@@ -67,6 +67,53 @@ export type Database = {
           },
         ]
       }
+      payment_confirmations: {
+        Row: {
+          celebrity_id: string | null
+          celebrity_name: string
+          confirmed_at: string
+          created_at: string | null
+          id: string
+          job_completed: boolean
+          phone_number: string
+          salary: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          celebrity_id?: string | null
+          celebrity_name: string
+          confirmed_at?: string
+          created_at?: string | null
+          id?: string
+          job_completed?: boolean
+          phone_number: string
+          salary: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          celebrity_id?: string | null
+          celebrity_name?: string
+          confirmed_at?: string
+          created_at?: string | null
+          id?: string
+          job_completed?: boolean
+          phone_number?: string
+          salary?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_confirmations_celebrity_id_fkey"
+            columns: ["celebrity_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
