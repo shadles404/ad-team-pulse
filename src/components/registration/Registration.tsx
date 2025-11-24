@@ -42,6 +42,7 @@ export const Registration = ({ onRegister }: RegistrationProps) => {
       salary: parseFloat(formData.salary),
       targetVideos: targetCount,
       progressChecks: new Array(targetCount).fill(false),
+      videoLinks: new Array(targetCount).fill(''),
       advertisementTypes: formData.advertisementTypes,
       platform: formData.platform,
       contractType: formData.contractType,

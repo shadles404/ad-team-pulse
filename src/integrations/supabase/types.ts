@@ -150,6 +150,7 @@ export type Database = {
           target_videos: number
           updated_at: string | null
           user_id: string
+          video_links: string[] | null
         }
         Insert: {
           advertisement_types?: string[]
@@ -165,6 +166,7 @@ export type Database = {
           target_videos: number
           updated_at?: string | null
           user_id: string
+          video_links?: string[] | null
         }
         Update: {
           advertisement_types?: string[]
@@ -180,6 +182,7 @@ export type Database = {
           target_videos?: number
           updated_at?: string | null
           user_id?: string
+          video_links?: string[] | null
         }
         Relationships: []
       }
