@@ -29,6 +29,7 @@ export function useTeamMembers(userId: string | undefined) {
         salary: item.salary,
         targetVideos: item.target_videos,
         progressChecks: item.progress_checks,
+        videoLinks: item.video_links || [],
         advertisementTypes: item.advertisement_types || [],
         platform: item.platform,
         contractType: item.contract_type || "",
@@ -54,6 +55,7 @@ export function useTeamMembers(userId: string | undefined) {
         salary: member.salary,
         target_videos: member.targetVideos,
         progress_checks: member.progressChecks,
+        video_links: member.videoLinks,
         advertisement_types: member.advertisementTypes,
         platform: member.platform,
         contract_type: member.contractType,
@@ -113,21 +115,49 @@ export function useTeamMembers(userId: string | undefined) {
     }
   };
 
+  const updateVideoLinks = async (id: string, videoLinks: string[]) => {
+    try {
+      // Auto-update progress checkboxes based on video links
+      const progressChecks = videoLinks.map(link => link.trim() !== '');
+      
+      const { error } = await supabase
+        .from("team_members")
+        .update({ 
+          video_links: videoLinks,
+          progress_checks: progressChecks
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      setTeamMembers((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, videoLinks, progressChecks } : m))
+      );
+      toast.success("Video links updated!");
+    } catch (error) {
+      toast.error("Failed to update video links");
+    }
+  };
+
   const resetProgress = async (id: string) => {
     const member = teamMembers.find((m) => m.id === id);
     if (!member) return;
 
     try {
       const newProgress = new Array(member.targetVideos).fill(false);
+      const newVideoLinks = new Array(member.targetVideos).fill('');
       const { error } = await supabase
         .from("team_members")
-        .update({ progress_checks: newProgress })
+        .update({ 
+          progress_checks: newProgress,
+          video_links: newVideoLinks
+        })
         .eq("id", id);
 
       if (error) throw error;
 
       setTeamMembers((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, progressChecks: newProgress } : m))
+        prev.map((m) => (m.id === id ? { ...m, progressChecks: newProgress, videoLinks: newVideoLinks } : m))
       );
       toast.success("Progress reset!");
     } catch (error) {
@@ -141,6 +171,7 @@ export function useTeamMembers(userId: string | undefined) {
     addTeamMember,
     updateTeamMember,
     updateProgress,
+    updateVideoLinks,
     resetProgress,
     refetch: fetchTeamMembers,
   };
