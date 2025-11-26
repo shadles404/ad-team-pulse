@@ -70,15 +70,6 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
     onUpdateProgress(memberId, newProgress);
   };
 
-  const handleVideoLinkChange = (memberId: string, linkIndex: number, value: string) => {
-    const member = teamMembers.find(m => m.id === memberId);
-    if (!member) return;
-
-    const newVideoLinks = [...member.videoLinks];
-    newVideoLinks[linkIndex] = value;
-    onUpdateVideoLinks(memberId, newVideoLinks);
-  };
-
   const handleReset = (id: string) => {
     if (!isAdmin) return;
     onResetProgress(id);
@@ -123,7 +114,6 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
                 <TableHead>Salary</TableHead>
                 <TableHead>Contract</TableHead>
                 <TableHead>Target</TableHead>
-                <TableHead className="min-w-[300px]">Video Links</TableHead>
                 <TableHead className="min-w-[250px]">Progress (Checkboxes)</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Ad Types</TableHead>
@@ -149,21 +139,6 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
                     <TableCell>${member.salary.toLocaleString()}</TableCell>
                     <TableCell>{member.contractType}</TableCell>
                     <TableCell>{member.targetVideos}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-2">
-                        {Array.from({ length: member.targetVideos }).map((_, linkIndex) => (
-                          <Input
-                            key={linkIndex}
-                            type="url"
-                            placeholder={`Video link ${linkIndex + 1}`}
-                            value={member.videoLinks[linkIndex] || ''}
-                            onChange={(e) => handleVideoLinkChange(member.id, linkIndex, e.target.value)}
-                            className="text-xs"
-                            disabled={!isAdmin}
-                          />
-                        ))}
-                      </div>
-                    </TableCell>
                     <TableCell>
                       <ProgressCheckboxes
                         checks={member.progressChecks}
