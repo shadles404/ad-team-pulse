@@ -17,7 +17,7 @@ import { usePaymentConfirmations } from "@/hooks/usePaymentConfirmations";
 const Index = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
-  const { teamMembers, loading: dataLoading, addTeamMember, updateTeamMember, updateProgress, updateVideoLinks, resetProgress } = useTeamMembers(user?.id);
+  const { teamMembers, loading: dataLoading, addTeamMember, updateTeamMember, updateProgress, updateVideoLinks, resetProgress, deleteTeamMember } = useTeamMembers(user?.id);
   const { deliveries, loading: deliveriesLoading, addDelivery, updateDelivery, deleteDelivery } = useDeliveries(user?.id);
   const { confirmations, loading: paymentsLoading, addConfirmation, deleteConfirmation } = usePaymentConfirmations(user?.id);
   const { role, isAdmin, loading: roleLoading } = useUserRole(user?.id);
@@ -54,14 +54,15 @@ const Index = () => {
           <Registration onRegister={addTeamMember} />
         )}
         {activeTab === "tracking" && (
-          <TeamTable
-            teamMembers={teamMembers}
-            onUpdateProgress={updateProgress}
-            onUpdateVideoLinks={updateVideoLinks}
-            onResetProgress={resetProgress}
-            onUpdateMember={updateTeamMember}
-            isAdmin={isAdmin}
-          />
+            <TeamTable
+              teamMembers={teamMembers}
+              onUpdateProgress={updateProgress}
+              onUpdateVideoLinks={updateVideoLinks}
+              onResetProgress={resetProgress}
+              onUpdateMember={updateTeamMember}
+              onDeleteMember={deleteTeamMember}
+              isAdmin={isAdmin}
+            />
         )}
         {activeTab === "delivery" && (
           <Delivery
