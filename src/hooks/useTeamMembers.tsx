@@ -165,6 +165,22 @@ export function useTeamMembers(userId: string | undefined) {
     }
   };
 
+  const deleteTeamMember = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("team_members")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast.success("Team member deleted successfully!");
+      await fetchTeamMembers();
+    } catch (error) {
+      toast.error("Failed to delete team member");
+    }
+  };
+
   return {
     teamMembers,
     loading,
@@ -173,6 +189,7 @@ export function useTeamMembers(userId: string | undefined) {
     updateProgress,
     updateVideoLinks,
     resetProgress,
+    deleteTeamMember,
     refetch: fetchTeamMembers,
   };
 }

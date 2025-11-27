@@ -2,11 +2,12 @@ import { useState } from "react";
 import { TeamMember } from "@/types/team";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Download, RotateCcw, CheckCircle, AlertCircle, Edit } from "lucide-react";
+import { Search, Download, RotateCcw, CheckCircle, AlertCircle, Edit, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ProgressCheckboxes } from "./ProgressCheckboxes";
 import { EditMemberDialog } from "./EditMemberDialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
 interface TeamTableProps {
@@ -15,12 +16,14 @@ interface TeamTableProps {
   onUpdateVideoLinks: (id: string, videoLinks: string[]) => void;
   onResetProgress: (id: string) => void;
   onUpdateMember: (id: string, updates: Partial<TeamMember>) => void;
+  onDeleteMember: (id: string) => void;
   isAdmin: boolean;
 }
 
-export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, onResetProgress, onUpdateMember, isAdmin }: TeamTableProps) => {
+export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, onResetProgress, onUpdateMember, onDeleteMember, isAdmin }: TeamTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null);
 
   const filteredMembers = teamMembers.filter(member =>
     member.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -76,6 +79,12 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
     toast.success("Progress reset successfully!");
   };
 
+  const handleDelete = () => {
+    if (!isAdmin || !deletingMemberId) return;
+    onDeleteMember(deletingMemberId);
+    setDeletingMemberId(null);
+  };
+
   return (
     <div className="space-y-4">
       {editingMember && (
@@ -86,6 +95,23 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
           onUpdate={onUpdateMember}
         />
       )}
+
+      <AlertDialog open={!!deletingMemberId} onOpenChange={(open) => !open && setDeletingMemberId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the team member and all their data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="relative flex-1 max-w-sm">
@@ -143,7 +169,7 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
                       <ProgressCheckboxes
                         checks={member.progressChecks}
                         onToggle={(checkIndex) => handleToggleProgress(member.id, checkIndex)}
-                        disabled={true}
+                        disabled={!isAdmin}
                       />
                     </TableCell>
                     <TableCell>
@@ -193,6 +219,15 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
                           >
                             <RotateCcw className="h-4 w-4" />
                             Reset
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeletingMemberId(member.id)}
+                            className="gap-2 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete
                           </Button>
                         </div>
                       </TableCell>
