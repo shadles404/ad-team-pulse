@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Dashboard } from "@/components/dashboard/Dashboard";
@@ -13,13 +13,15 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { Delivery } from "@/components/delivery/Delivery";
 import { PaymentConfirmation } from "@/components/payment/PaymentConfirmation";
 import { usePaymentConfirmations } from "@/hooks/usePaymentConfirmations";
+import { TeamMember } from "@/types/team";
+import { toast } from "sonner";
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
   const { teamMembers, loading: dataLoading, addTeamMember, updateTeamMember, updateProgress, updateVideoLinks, resetProgress, deleteTeamMember } = useTeamMembers(user?.id);
   const { deliveries, loading: deliveriesLoading, addDelivery, updateDelivery, deleteDelivery } = useDeliveries(user?.id);
-  const { confirmations, loading: paymentsLoading, addConfirmation, deleteConfirmation } = usePaymentConfirmations(user?.id);
+  const { confirmations, loading: paymentsLoading, addConfirmation, deleteConfirmation, hasPaymentForMonth } = usePaymentConfirmations(user?.id);
   const { role, isAdmin, loading: roleLoading } = useUserRole(user?.id);
   const [activeTab, setActiveTab] = useState("dashboard");
 
@@ -28,6 +30,37 @@ const Index = () => {
       navigate("/auth");
     }
   }, [user, authLoading, navigate]);
+
+  // Handle auto-payment when target is completed
+  const handleTargetCompleted = useCallback(async (member: TeamMember) => {
+    if (!user) return;
+
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+
+    // Check if payment already exists for this month
+    if (hasPaymentForMonth(member.id, currentMonth, currentYear)) {
+      return; // Payment already created for this month
+    }
+
+    try {
+      await addConfirmation({
+        celebrity_id: member.id,
+        celebrity_name: member.description,
+        phone_number: member.phone,
+        job_completed: true,
+        salary: member.salary,
+        user_id: user.id,
+        month: currentMonth,
+        year: currentYear,
+        payment_status: 'pending',
+        contract_reference: member.contractType || undefined,
+      });
+      toast.success(`🎉 ${member.description} completed their target! Payment confirmation created.`);
+    } catch (error) {
+      console.error("Error creating payment confirmation:", error);
+    }
+  }, [user, addConfirmation, hasPaymentForMonth]);
 
   if (authLoading || dataLoading || deliveriesLoading || paymentsLoading || roleLoading) {
     return (
@@ -62,6 +95,7 @@ const Index = () => {
               onUpdateMember={updateTeamMember}
               onDeleteMember={deleteTeamMember}
               isAdmin={isAdmin}
+              onTargetCompleted={handleTargetCompleted}
             />
         )}
         {activeTab === "delivery" && (
@@ -85,7 +119,7 @@ const Index = () => {
             isAdmin={isAdmin}
           />
         )}
-        {activeTab === "reports" && <Reports teamMembers={teamMembers} />}
+        {activeTab === "reports" && <Reports teamMembers={teamMembers} confirmations={confirmations} />}
         {activeTab === "settings" && <Settings />}
       </main>
     </div>

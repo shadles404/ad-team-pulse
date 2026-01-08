@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TeamMember } from "@/types/team";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Download, RotateCcw, CheckCircle, AlertCircle, Edit, Trash2 } from "lucide-react";
+import { Search, Download, CheckCircle, AlertCircle, Edit, RotateCcw, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ProgressCheckboxes } from "./ProgressCheckboxes";
 import { EditMemberDialog } from "./EditMemberDialog";
+import { ActionsDropdown } from "./ActionsDropdown";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
@@ -18,9 +19,10 @@ interface TeamTableProps {
   onUpdateMember: (id: string, updates: Partial<TeamMember>) => void;
   onDeleteMember: (id: string) => void;
   isAdmin: boolean;
+  onTargetCompleted?: (member: TeamMember) => void;
 }
 
-export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, onResetProgress, onUpdateMember, onDeleteMember, isAdmin }: TeamTableProps) => {
+export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, onResetProgress, onUpdateMember, onDeleteMember, isAdmin, onTargetCompleted }: TeamTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null);
@@ -71,6 +73,15 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
     const newProgress = [...member.progressChecks];
     newProgress[checkIndex] = !newProgress[checkIndex];
     onUpdateProgress(memberId, newProgress);
+
+    // Check if target is now completed and trigger auto-payment
+    const completedCount = newProgress.filter(Boolean).length;
+    const wasCompleted = member.progressChecks.filter(Boolean).length >= member.targetVideos;
+    const isNowCompleted = completedCount >= member.targetVideos;
+
+    if (isNowCompleted && !wasCompleted && onTargetCompleted) {
+      onTargetCompleted(member);
+    }
   };
 
   const handleReset = (id: string) => {
@@ -145,7 +156,7 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
                 <TableHead>Ad Types</TableHead>
                 <TableHead>Platform</TableHead>
                 <TableHead>Notes</TableHead>
-                {isAdmin && <TableHead className="text-right">Actions</TableHead>}
+                {isAdmin && <TableHead className="text-right sticky right-0 bg-muted/50">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -200,8 +211,9 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
                     <TableCell>{member.platform}</TableCell>
                     <TableCell className="max-w-[200px] truncate">{member.notes || "-"}</TableCell>
                     {isAdmin && (
-                      <TableCell className="text-right">
-                        <div className="flex gap-1 justify-end">
+                      <TableCell className="text-right sticky right-0 bg-card">
+                        {/* Desktop: show buttons, Mobile: show dropdown */}
+                        <div className="hidden lg:flex gap-1 justify-end">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -230,6 +242,13 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
                             Delete
                           </Button>
                         </div>
+                        <div className="lg:hidden">
+                          <ActionsDropdown
+                            onEdit={() => setEditingMember(member)}
+                            onReset={() => handleReset(member.id)}
+                            onDelete={() => setDeletingMemberId(member.id)}
+                          />
+                        </div>
                       </TableCell>
                     )}
                   </TableRow>
@@ -240,20 +259,20 @@ export const TeamTable = ({ teamMembers, onUpdateProgress, onUpdateVideoLinks, o
         </div>
       </div>
 
-      <div className="flex justify-between items-center p-4 bg-card rounded-lg border">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-card rounded-lg border">
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">Total Salary</p>
-          <p className="text-2xl font-bold text-foreground">${totalSalary.toLocaleString()}</p>
+          <p className="text-xl sm:text-2xl font-bold text-foreground">${totalSalary.toLocaleString()}</p>
         </div>
-        <div className="space-y-1 text-right">
+        <div className="space-y-1 sm:text-right">
           <p className="text-sm text-muted-foreground">Total Videos</p>
-          <p className="text-2xl font-bold text-foreground">
+          <p className="text-xl sm:text-2xl font-bold text-foreground">
             {totalCompleted} / {totalTarget}
           </p>
         </div>
-        <div className="space-y-1 text-right">
+        <div className="space-y-1 sm:text-right">
           <p className="text-sm text-muted-foreground">Overall Rate</p>
-          <p className="text-2xl font-bold text-foreground">
+          <p className="text-xl sm:text-2xl font-bold text-foreground">
             {totalTarget > 0 ? ((totalCompleted / totalTarget) * 100).toFixed(1) : 0}%
           </p>
         </div>
