@@ -9,4 +9,9 @@ export interface PaymentConfirmation {
   created_at: string;
   updated_at: string;
   user_id: string;
+  month?: number;
+  year?: number;
+  payment_status: string;
+  completion_date?: string;
+  contract_reference?: string;
 }

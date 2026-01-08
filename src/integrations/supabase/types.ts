@@ -71,38 +71,53 @@ export type Database = {
         Row: {
           celebrity_id: string | null
           celebrity_name: string
+          completion_date: string | null
           confirmed_at: string
+          contract_reference: string | null
           created_at: string | null
           id: string
           job_completed: boolean
+          month: number | null
+          payment_status: string
           phone_number: string
           salary: number
           updated_at: string | null
           user_id: string
+          year: number | null
         }
         Insert: {
           celebrity_id?: string | null
           celebrity_name: string
+          completion_date?: string | null
           confirmed_at?: string
+          contract_reference?: string | null
           created_at?: string | null
           id?: string
           job_completed?: boolean
+          month?: number | null
+          payment_status?: string
           phone_number: string
           salary: number
           updated_at?: string | null
           user_id: string
+          year?: number | null
         }
         Update: {
           celebrity_id?: string | null
           celebrity_name?: string
+          completion_date?: string | null
           confirmed_at?: string
+          contract_reference?: string | null
           created_at?: string | null
           id?: string
           job_completed?: boolean
+          month?: number | null
+          payment_status?: string
           phone_number?: string
           salary?: number
           updated_at?: string | null
           user_id?: string
+          year?: number | null
         }
         Relationships: [
           {
